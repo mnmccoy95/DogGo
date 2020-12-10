@@ -1,1 +1,1 @@
-![doggo-erd](images\doggoerd.png)
+![doggo-erd](/images/doggoerd.png)

@@ -22,7 +22,7 @@ namespace DogGo.Controllers
         // GET: OwnerController/Details/5
         public ActionResult Details(int id)
         {
-            Owner owner = _ownerRepo.GetOwnerById(id);
+            OwnerDogs owner = _ownerRepo.GetOwnerById(id);
 
             if (owner == null)
             {

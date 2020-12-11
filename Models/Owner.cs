@@ -13,5 +13,6 @@ namespace DogGo.Models
         public int NeighborhoodId { get; set; }
         public string Phone { get; set; }
         public Neighborhood Neighborhood { get; set; }
+        public string Email { get; set; }
     }
 }

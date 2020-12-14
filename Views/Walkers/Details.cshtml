@@ -42,8 +42,10 @@
             </tr>
         </thead>
         <tbody>
+            @{ int total = 0;}
             @foreach (Walk walk in Model.Walks)
             {
+                total = total + walk.Duration;
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => walk.Date)
@@ -58,6 +60,10 @@
             }
         </tbody>
     </table>
+    <div>
+        <th>Total Walk Time:</th>
+        @Html.DisplayFor(modelItem => total) mins
+    </div>
 </div>
 <div>
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |

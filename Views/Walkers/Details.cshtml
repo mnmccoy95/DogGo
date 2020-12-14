@@ -1,4 +1,4 @@
-﻿@model DogGo.Models.Walker
+﻿@model DogGo.Models.ViewModels.WalkerProfileViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -10,25 +10,54 @@
     <h4>Walker</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Walker.Name)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Walker.Name)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Neighborhood.Name)
+        <dt class="col-sm-2">
+            Neighborhood
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Neighborhood.Name)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Walker.Neighborhood.Name)
         </dd>
-        <dt class = "col-sm-2">
-            <img class="bg-info" src="@Model.ImageUrl" alt="avatar" />
-        </dt>
-        <dd class = "col-sm-10">
-            <img class="bg-info" src="@Model.ImageUrl" alt="avatar" />
+        <dd class="col-sm-10">
+            <img class="bg-info" src="@Model.Walker.ImageUrl" alt="avatar" />
         </dd>
     </dl>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Date
+                </th>
+                <th>
+                    Client
+                </th>
+                <th>
+                    Duration
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Walk walk in Model.Walks)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => walk.Date)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => walk.owner.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => (walk.Duration)) mins
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 <div>
     @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |

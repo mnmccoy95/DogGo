@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using DogGo.Repositories;
 using DogGo.Models;
 using DogGo.Models.ViewModels;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DogGo.Controllers
 {
@@ -15,12 +19,25 @@ namespace DogGo.Controllers
         // GET: WalkersController
         public ActionResult Index()
         {
-            List<Walker> walkers = _walkerRepo.GetAllWalkers();
+            try
+            {
+                int id = GetCurrentUserId();
+                Owner owner = _ownerRepo.GetOwnerById(id);
+                List<Walker> walkers = _walkerRepo.GetAllWalkers();
 
-            return View(walkers);
+                List<Walker> walkers2 = walkers.Where(walker => owner.NeighborhoodId == walker.NeighborhoodId).ToList();
+
+                return View(walkers2);
+            }
+            catch
+            {
+                List<Walker> walkers = _walkerRepo.GetAllWalkers();
+                return View(walkers);
+            }
         }
 
         // GET: WalkersController/Details/5
+        [Authorize]
         public ActionResult Details(int id)
         {
             Walker walker = _walkerRepo.GetWalkerById(id);
@@ -43,12 +60,14 @@ namespace DogGo.Controllers
         }
 
         // GET: WalkersController/Create
+        [Authorize]
         public ActionResult Create()
         {
             return View();
         }
 
         // POST: WalkersController/Create
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -64,12 +83,14 @@ namespace DogGo.Controllers
         }
 
         // GET: WalkersController/Edit/5
+        [Authorize]
         public ActionResult Edit(int id)
         {
             return View();
         }
 
         // POST: WalkersController/Edit/5
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, IFormCollection collection)
@@ -85,12 +106,14 @@ namespace DogGo.Controllers
         }
 
         // GET: WalkersController/Delete/5
+        [Authorize]
         public ActionResult Delete(int id)
         {
             return View();
         }
 
         // POST: WalkersController/Delete/5
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
@@ -104,12 +127,22 @@ namespace DogGo.Controllers
                 return View();
             }
         }
-        private readonly IWalkerRepository _walkerRepo;
-
-        // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository)
+        private int GetCurrentUserId()
         {
-            _walkerRepo = walkerRepository;
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(id);
+        }
+        private IOwnerRepository _ownerRepo;
+        private IDogRepository _dogRepo;
+        private IWalkerRepository _walkerRepo;
+        private INeighborhoodRepository _neighborhoodRepo;
+
+        public WalkersController(IOwnerRepository ownerRepo, IDogRepository dogRepo, IWalkerRepository walkerRepo, INeighborhoodRepository neighborRepo)
+        {
+            _ownerRepo = ownerRepo;
+            _dogRepo = dogRepo;
+            _walkerRepo = walkerRepo;
+            _neighborhoodRepo = neighborRepo;
         }
     }
 }

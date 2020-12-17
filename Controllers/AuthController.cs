@@ -16,66 +16,80 @@ namespace DogGo.Controllers
     {
         public ActionResult Login()
         {
-            return View();
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult> Login(LoginViewModel viewModel)
         {
-            List<Claim> claims = new List<Claim>();
-
-            if (viewModel.Type == "Owner")
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
             {
-                Owner owner = _ownerRepo.GetOwnerByEmail(viewModel.Email);
+                return NotFound();
+            }
+            else
+            {
+                List<Claim> claims = new List<Claim>();
 
-                if (owner == null)
+                if (viewModel.Type == "Owner")
                 {
-                    return Unauthorized();
-                }
+                    Owner owner = _ownerRepo.GetOwnerByEmail(viewModel.Email);
 
-                claims = new List<Claim>
+                    if (owner == null)
+                    {
+                        return Unauthorized();
+                    }
+
+                    claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
                     new Claim(ClaimTypes.Email, owner.Email),
                     new Claim(ClaimTypes.Role, "DogOwner"),
                 };
 
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Details", "Owners", new { id = owner.Id });
-            }
-            else if (viewModel.Type == "Walker")
-            {
-                Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
-
-                if (walker == null)
-                {
-                    return Unauthorized();
+                    return RedirectToAction("Details", "Owners", new { id = owner.Id });
                 }
+                else if (viewModel.Type == "Walker")
+                {
+                    Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
 
-                claims = new List<Claim>
+                    if (walker == null)
+                    {
+                        return Unauthorized();
+                    }
+
+                    claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, walker.Id.ToString()),
                     new Claim(ClaimTypes.Email, walker.Email),
                     new Claim(ClaimTypes.Role, "DogWalker"),
                 };
 
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Details", "Walkers", new { id = walker.Id });
+                    return RedirectToAction("Details", "Walkers", new { id = walker.Id });
+                }
+
+                return NotFound();
             }
-
-            return NotFound();
         }
 
         public async Task<ActionResult> Logout()

@@ -19,21 +19,35 @@ namespace DogGo.Controllers
         // GET: DogsController/Details/5
         public ActionResult Details(int id)
         {
-            Dog dog = _dogRepo.GetDogById(id);
-            if(dog.OwnerId == GetCurrentUserId())
-            {
-                return View(dog);
-            }
-            else
+            if (User.IsInRole("DogWalker"))
             {
                 return NotFound();
+            }
+            else
+            { 
+                Dog dog = _dogRepo.GetDogById(id);
+                if(dog.OwnerId == GetCurrentUserId())
+                {
+                    return View(dog);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
 
         // GET: DogsController/Create
         public ActionResult Create()
         {
-            return View();
+            if (User.IsInRole("DogWalker"))
+            {
+                return NotFound();
+            }
+            else
+            { 
+                return View();
+            }
         }
 
         // POST: DogsController/Create
@@ -41,46 +55,18 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Dog dog)
         {
-            try
-            {
-                // update the dogs OwnerId to the current user's Id
-                dog.OwnerId = GetCurrentUserId();
-
-                _dogRepo.AddDog(dog);
-
-                return RedirectToAction("Index", "Owners");
-            }
-            catch (Exception ex)
-            {
-                return View(dog);
-            }
-        }
-
-        // GET: DogsController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            Dog dog = _dogRepo.GetDogById(id);
-            if(dog.OwnerId == GetCurrentUserId())
-            {
-                return View(dog);
-            }
-            else
+            if (User.IsInRole("DogWalker"))
             {
                 return NotFound();
             }
-        }
-
-        // POST: DogsController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Dog dog)
-        {
-            if(dog.OwnerId == GetCurrentUserId())
+            else
             { 
                 try
                 {
+                    // update the dogs OwnerId to the current user's Id
                     dog.OwnerId = GetCurrentUserId();
-                    _dogRepo.UpdateDog(dog);
+
+                    _dogRepo.AddDog(dog);
 
                     return RedirectToAction("Index", "Owners");
                 }
@@ -89,9 +75,58 @@ namespace DogGo.Controllers
                     return View(dog);
                 }
             }
-            else
+        }
+
+        // GET: DogsController/Edit/5
+        public ActionResult Edit(int id)
+        {
+            if (User.IsInRole("DogWalker"))
             {
                 return NotFound();
+            }
+            else
+            { 
+                Dog dog = _dogRepo.GetDogById(id);
+                if(dog.OwnerId == GetCurrentUserId())
+                {
+                    return View(dog);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+        }
+
+        // POST: DogsController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int id, Dog dog)
+        {
+            if(User.IsInRole("DogWalker"))
+            {
+                return NotFound();
+            }
+            else
+            { 
+                if (dog.OwnerId == GetCurrentUserId())
+                { 
+                    try
+                    {
+                        dog.OwnerId = GetCurrentUserId();
+                        _dogRepo.UpdateDog(dog);
+
+                        return RedirectToAction("Index", "Owners");
+                    }
+                    catch (Exception ex)
+                    {
+                        return View(dog);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
 

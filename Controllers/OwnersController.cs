@@ -52,6 +52,12 @@ namespace DogGo.Controllers
         // GET: OwnerController/Create
         public ActionResult Create()
         {
+            if(User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
+            {
+                return NotFound();
+            }
+            else
+            {
             List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
 
             OwnerFormViewModel vm = new OwnerFormViewModel()
@@ -61,6 +67,7 @@ namespace DogGo.Controllers
             };
 
             return View(vm);
+            }
         }
 
         // POST: OwnerController/Create
@@ -68,31 +75,38 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(OwnerFormViewModel ownerFormModel)
         {
-            try
+            if (User.FindFirstValue(ClaimTypes.NameIdentifier) != null)
             {
-                _ownerRepo.AddOwner(ownerFormModel.Owner);
-
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, ownerFormModel.Owner.Id.ToString()),
-                    new Claim(ClaimTypes.Email, ownerFormModel.Owner.Email),
-                    new Claim(ClaimTypes.Role, "DogOwner"),
-                };
-
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(
-                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity));
-
-                return RedirectToAction(nameof(Details), new { id = ownerFormModel.Owner.Id });
+                return NotFound();
             }
-            catch
+            else
             {
-                ownerFormModel.Neighborhoods = _neighborhoodRepo.GetAll();
+                try
+                {
+                    _ownerRepo.AddOwner(ownerFormModel.Owner);
 
-                return View(ownerFormModel);
+                    List<Claim> claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, ownerFormModel.Owner.Id.ToString()),
+                        new Claim(ClaimTypes.Email, ownerFormModel.Owner.Email),
+                        new Claim(ClaimTypes.Role, "DogOwner"),
+                    };
+
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity));
+
+                    return RedirectToAction(nameof(Details), new { id = ownerFormModel.Owner.Id });
+                }
+                catch
+                {
+                    ownerFormModel.Neighborhoods = _neighborhoodRepo.GetAll();
+
+                    return View(ownerFormModel);
+                }
             }
         }
         private int GetCurrentUserId()

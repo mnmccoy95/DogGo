@@ -24,12 +24,20 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Dogs" asp-action="Index">My Dogs</a>
                             </li>
                         }
-                        <li class="nav-item ml-auto">Welcome @User.FindFirst(ClaimTypes.Email).Value</li>
+                        @if (User.IsInRole("DogWalker"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Dogs" asp-action="Index">My Dogs</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Logout">Logout</a>
+                        </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Owners" asp-action="Login">Login</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Auth" asp-action="Login">Login</a>
                         </li>
                     }
                 </ul>

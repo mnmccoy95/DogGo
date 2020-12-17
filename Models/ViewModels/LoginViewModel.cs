@@ -8,5 +8,6 @@ namespace DogGo.Models.ViewModels
     public class LoginViewModel
     {
         public string Email { get; set; }
+        public string Type { get; set; }
     }
 }

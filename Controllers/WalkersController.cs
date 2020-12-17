@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DogGo.Controllers
 {
+    [Authorize]
     public class WalkersController : Controller
     {
         // GET: WalkersController
@@ -126,6 +127,37 @@ namespace DogGo.Controllers
             {
                 return View();
             }
+        }
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(LoginViewModel viewModel)
+        {
+            Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
+
+            if (walker == null)
+            {
+                return Unauthorized();
+            }
+
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, walker.Id.ToString()),
+                new Claim(ClaimTypes.Email, walker.Email),
+                new Claim(ClaimTypes.Role, "DogWalker"),
+            };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToAction("Index", "Dogs");
         }
         private int GetCurrentUserId()
         {

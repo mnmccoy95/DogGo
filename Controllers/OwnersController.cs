@@ -14,16 +14,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DogGo.Controllers
 {
-    [Authorize]
     public class OwnersController : Controller
     {
         // GET: OwnerController
+        [Authorize]
         public ActionResult Index()
         {
             return RedirectToAction("Details");
         }
 
         // GET: OwnerController/Details/5
+        [Authorize]
         public ActionResult Details()
         {
             if (User.IsInRole("DogWalker"))
@@ -65,17 +66,33 @@ namespace DogGo.Controllers
         // POST: OwnerController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Owner owner)
+        public async Task<ActionResult> Create(OwnerFormViewModel ownerFormModel)
         {
             try
             {
-                _ownerRepo.AddOwner(owner);
+                _ownerRepo.AddOwner(ownerFormModel.Owner);
 
-                return RedirectToAction("Index");
+                List<Claim> claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, ownerFormModel.Owner.Id.ToString()),
+                    new Claim(ClaimTypes.Email, ownerFormModel.Owner.Email),
+                    new Claim(ClaimTypes.Role, "DogOwner"),
+                };
+
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity));
+
+                return RedirectToAction(nameof(Details), new { id = ownerFormModel.Owner.Id });
             }
-            catch (Exception ex)
+            catch
             {
-                return View(owner);
+                ownerFormModel.Neighborhoods = _neighborhoodRepo.GetAll();
+
+                return View(ownerFormModel);
             }
         }
         private int GetCurrentUserId()

@@ -27,6 +27,12 @@ namespace DogGo.Controllers
         [Authorize]
         public ActionResult Details()
         {
+            if (User.IsInRole("DogOwner"))
+            {
+                return NotFound();
+            }
+            else 
+            { 
             int id = GetCurrentUserId();
             Walker walker = _walkerRepo.GetWalkerById(id);
             List<Walk> walks = _walkerRepo.GetWalksByWalkerId(id);
@@ -38,74 +44,6 @@ namespace DogGo.Controllers
             };
 
             return View(vm);
-        }
-
-        // GET: WalkersController/Create
-        [Authorize]
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: WalkersController/Create
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: WalkersController/Edit/5
-        [Authorize]
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: WalkersController/Edit/5
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: WalkersController/Delete/5
-        [Authorize]
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: WalkersController/Delete/5
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
             }
         }
         

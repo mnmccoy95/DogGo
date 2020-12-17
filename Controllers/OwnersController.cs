@@ -14,36 +14,41 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DogGo.Controllers
 {
+    [Authorize]
     public class OwnersController : Controller
     {
         // GET: OwnerController
-        [Authorize]
         public ActionResult Index()
         {
             return RedirectToAction("Details");
         }
 
         // GET: OwnerController/Details/5
-        [Authorize]
         public ActionResult Details()
         {
-            int id = GetCurrentUserId();
-            Owner owner = _ownerRepo.GetOwnerById(id);
-            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
-            List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
-
-            ProfileViewModel vm = new ProfileViewModel()
+            if (User.IsInRole("DogWalker"))
             {
-                Owner = owner,
-                Dogs = dogs,
-                Walkers = walkers
-            };
+                return NotFound();
+            }
+            else
+            {
+                int id = GetCurrentUserId();
+                Owner owner = _ownerRepo.GetOwnerById(id);
+                List<Dog> dogs = _dogRepo.GetDogsByOwnerId(owner.Id);
+                List<Walker> walkers = _walkerRepo.GetWalkersInNeighborhood(owner.NeighborhoodId);
 
-            return View(vm);
+                ProfileViewModel vm = new ProfileViewModel()
+                {
+                    Owner = owner,
+                    Dogs = dogs,
+                    Walkers = walkers
+                };
+
+                return View(vm);
+            }
         }
 
         // GET: OwnerController/Create
-        [Authorize]
         public ActionResult Create()
         {
             List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
@@ -58,7 +63,6 @@ namespace DogGo.Controllers
         }
 
         // POST: OwnerController/Create
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Owner owner)
@@ -66,77 +70,6 @@ namespace DogGo.Controllers
             try
             {
                 _ownerRepo.AddOwner(owner);
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                return View(owner);
-            }
-        }
-
-        // GET: OwnerController/Edit/5
-        [Authorize]
-        public ActionResult Edit(int id)
-        {
-
-            Owner owner = _ownerRepo.GetOwnerById(id);
-
-            if (owner == null)
-            {
-                return NotFound();
-            }
-
-            else
-            {
-                List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
-
-                OwnerFormViewModel vm = new OwnerFormViewModel()
-                {
-                    Owner = owner,
-                    Neighborhoods = neighborhoods
-                };
-
-                return View(vm);
-            }
-        }
-
-        // POST: OwnerController/Edit/5
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, Owner owner)
-        {
-            try
-            {
-                _ownerRepo.UpdateOwner(owner);
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                return View(owner);
-            }
-        }
-
-        // GET: OwnerController/Delete/5
-        [Authorize]
-        public ActionResult Delete(int id)
-        {
-            Owner owner = _ownerRepo.GetOwnerById(id);
-
-            return View(owner);
-        }
-
-        // POST: OwnerController/Delete/5
-        [Authorize]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, Owner owner)
-        {
-            try
-            {
-                _ownerRepo.DeleteOwner(id);
 
                 return RedirectToAction("Index");
             }

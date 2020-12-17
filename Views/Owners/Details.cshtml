@@ -26,8 +26,12 @@
 
     <div class="row">
         <section class="col-8 container mt-5">
-            <h1 class="text-left">Dogs</h1>
-
+            <div>
+                <h1 class="text-left">Dogs</h1>
+                <p>
+                    <a asp-controller="Dogs" asp-action="Create">Create New</a>
+                </p>
+            </div>
             <div class="row">
                 @foreach (Dog dog in Model.Dogs)
                 {
@@ -42,21 +46,27 @@
                         {
                             <img src="@dog.ImageUrl" class="card-img-top" alt="Doggo" />
                         }
-                        <div class="card-body">
-                            <div>
-                                <label class="font-weight-bold">Name:</label>
-                                <span>@dog.Name</span>
-                            </div>
-                            <div>
-                                <label class="font-weight-bold">Breed:</label>
-                                <span>@dog.Breed</span>
-                            </div>
-                            <div>
-                                <label class="font-weight-bold">Notes:</label>
-                                <p>@dog.Notes</p>
-                            </div>
+                    <div class="card-body">
+                        <div>
+                            <label class="font-weight-bold">Name:</label>
+                            <span>@dog.Name</span>
                         </div>
+                        <div>
+                            <label class="font-weight-bold">Breed:</label>
+                            <span>@dog.Breed</span>
+                        </div>
+                        <div>
+                            <label class="font-weight-bold">Notes:</label>
+                            <p>@dog.Notes</p>
+                        </div>
+                        <p>
+                            @Html.ActionLink("Edit", "Edit", "Dogs", new { id = dog.Id })
+                        </p>
+                        <p>
+                            @Html.ActionLink("Walks", "Details", "Dogs", new { id = dog.Id })
+                        </p>
                     </div>
+                 </div>
                 }
             </div>
         </section>

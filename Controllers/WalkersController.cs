@@ -20,27 +20,14 @@ namespace DogGo.Controllers
         // GET: WalkersController
         public ActionResult Index()
         {
-            try
-            {
-                int id = GetCurrentUserId();
-                Owner owner = _ownerRepo.GetOwnerById(id);
-                List<Walker> walkers = _walkerRepo.GetAllWalkers();
-
-                List<Walker> walkers2 = walkers.Where(walker => owner.NeighborhoodId == walker.NeighborhoodId).ToList();
-
-                return View(walkers2);
-            }
-            catch
-            {
-                List<Walker> walkers = _walkerRepo.GetAllWalkers();
-                return View(walkers);
-            }
+            return RedirectToAction("Details");
         }
 
         // GET: WalkersController/Details/5
         [Authorize]
-        public ActionResult Details(int id)
+        public ActionResult Details()
         {
+            int id = GetCurrentUserId();
             Walker walker = _walkerRepo.GetWalkerById(id);
             List<Walk> walks = _walkerRepo.GetWalksByWalkerId(id);
             List< Walk > walkSort = walks.OrderByDescending(walk => walk.owner.Name).ToList();
@@ -49,13 +36,6 @@ namespace DogGo.Controllers
                 Walker = walker,
                 Walks = walkSort
             };
-
-            
-
-            if (walker == null)
-            {
-                return NotFound();
-            }
 
             return View(vm);
         }
@@ -128,37 +108,7 @@ namespace DogGo.Controllers
                 return View();
             }
         }
-        public ActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Login(LoginViewModel viewModel)
-        {
-            Walker walker = _walkerRepo.GetWalkerByEmail(viewModel.Email);
-
-            if (walker == null)
-            {
-                return Unauthorized();
-            }
-
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, walker.Id.ToString()),
-                new Claim(ClaimTypes.Email, walker.Email),
-                new Claim(ClaimTypes.Role, "DogWalker"),
-            };
-
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity));
-
-            return RedirectToAction("Index", "Dogs");
-        }
+        
         private int GetCurrentUserId()
         {
             string id = User.FindFirstValue(ClaimTypes.NameIdentifier);

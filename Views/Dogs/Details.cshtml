@@ -35,6 +35,9 @@
                     Walker
                 </th>
                 <th>
+                    Duration
+                </th>
+                <th>
                     Date
                 </th>
                 <th>
@@ -48,6 +51,9 @@
                 <tr>
                     <td>
                         @Html.DisplayFor(modelItem => (walk.walker.Name))
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => (walk.Duration)) mins
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => (walk.Date))

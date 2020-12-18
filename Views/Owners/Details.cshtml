@@ -46,27 +46,27 @@
                         {
                             <img src="@dog.ImageUrl" class="card-img-top" alt="Doggo" />
                         }
-                    <div class="card-body">
-                        <div>
-                            <label class="font-weight-bold">Name:</label>
-                            <span>@dog.Name</span>
+                        <div class="card-body">
+                            <div>
+                                <label class="font-weight-bold">Name:</label>
+                                <span>@dog.Name</span>
+                            </div>
+                            <div>
+                                <label class="font-weight-bold">Breed:</label>
+                                <span>@dog.Breed</span>
+                            </div>
+                            <div>
+                                <label class="font-weight-bold">Notes:</label>
+                                <p>@dog.Notes</p>
+                            </div>
+                            <p>
+                                @Html.ActionLink("Edit", "Edit", "Dogs", new { id = dog.Id })
+                            </p>
+                            <p>
+                                @Html.ActionLink("Walks", "Details", "Dogs", new { id = dog.Id })
+                            </p>
                         </div>
-                        <div>
-                            <label class="font-weight-bold">Breed:</label>
-                            <span>@dog.Breed</span>
-                        </div>
-                        <div>
-                            <label class="font-weight-bold">Notes:</label>
-                            <p>@dog.Notes</p>
-                        </div>
-                        <p>
-                            @Html.ActionLink("Edit", "Edit", "Dogs", new { id = dog.Id })
-                        </p>
-                        <p>
-                            @Html.ActionLink("Walks", "Details", "Dogs", new { id = dog.Id })
-                        </p>
                     </div>
-                 </div>
                 }
             </div>
         </section>
@@ -87,5 +87,49 @@
                 }
             </ul>
         </section>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Walker
+                    </th>
+                    <th>
+                        Dog
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Confirmed
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (Walk walk in Model.Walks)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => (walk.walker.Name))
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => (walk.Dog.Name))
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => (walk.Date))
+                        </td>
+                        <td>
+                            @if(walk.Accepted == true)
+                            {
+                                <p>Yes</p>
+                            }
+                            else
+                            {
+                                <p>Pending</p>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>

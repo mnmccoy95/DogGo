@@ -12,6 +12,7 @@ namespace DogGo.Models
         public int Duration { get; set; }
         public Walker walker { get; set; }
         public int DogId { get; set; }
+        public Dog Dog { get; set; }
         public Owner owner { get; set; }
         public Boolean Accepted { get; set; }
         public Boolean Completed { get; set; }

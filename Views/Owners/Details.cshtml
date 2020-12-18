@@ -81,6 +81,9 @@
                         <img src="@walker.ImageUrl" style="width:50px" />
                         <span class="font-weight-bold ml-4">@walker.Name</span>
                     </li>
+                    <p>
+                        @Html.ActionLink("Schedule a Walk", "Create", "Walk", new { id = walker.Id })
+                    </p>
                 }
             </ul>
         </section>

@@ -1,0 +1,41 @@
+﻿@model DogGo.Models.ViewModels.WalkFormViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+<h2>Schedule an Appointment With @Model.walk.walker.Name</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <input asp-for="walk.walker.Id" type="hidden" class="form-control" />
+                <span asp-validation-for="walk.walker.Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="walk.Date" class="control-label"></label>
+                <input asp-for="walk.Date" type="datetime-local" value="@DateTime.Now"/>
+                <span asp-validation-for="walk.Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="walk.DogId" class="control-label"></label>
+                <select asp-for="walk.DogId" class="form-control">
+                    <option value="">Select Dog</option>
+                    @foreach (Dog dog in Model.dogs)
+                    {
+                        <option value="@dog.Id">@dog.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="walk.DogId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

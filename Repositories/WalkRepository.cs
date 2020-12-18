@@ -98,5 +98,57 @@ namespace DogGo.Repositories
                 }
             }
         }
+        public List<Walk> GetWalksByDog(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                SELECT s.Id, s.Date, s.Duration, s.WalkerId, s.DogId, o.Name, w.Name AS walkerName, s.Accepted, d.Name AS dogName
+                FROM Walks s
+                JOIN Walker w ON w.Id = s.WalkerId
+                JOIN Dog d ON d.Id = s.DogId
+                JOIN Owner o ON o.Id = d.OwnerId
+                WHERE d.Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Walk> walks = new List<Walk>();
+
+                    while (reader.Read())
+                    {
+                        Walk walk = new Walk()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Duration = reader.GetInt32(reader.GetOrdinal("Duration")) / 60,
+                            walker = new Walker()
+                            {
+                                Name = reader.GetString(reader.GetOrdinal("walkerName"))
+                            },
+                            DogId = reader.GetInt32(reader.GetOrdinal("DogId")),
+                            Dog = new Dog()
+                            {
+                                Name = reader.GetString(reader.GetOrdinal("dogName"))
+                            },
+                            owner = new Owner()
+                            {
+                                Name = reader.GetString(reader.GetOrdinal("Name"))
+                            },
+                            Accepted = reader.GetBoolean(reader.GetOrdinal("Accepted"))
+                        };
+
+                        walks.Add(walk);
+                    }
+                    reader.Close();
+                    return walks;
+                }
+            }
+        }
     }
 }

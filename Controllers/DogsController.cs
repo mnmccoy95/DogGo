@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using DogGo.Models.ViewModels;
 
 namespace DogGo.Controllers
 {
@@ -24,11 +25,18 @@ namespace DogGo.Controllers
                 return NotFound();
             }
             else
-            { 
+            {
+                List<Walk> walks = _walkRepo.GetWalksByDog(id);
                 Dog dog = _dogRepo.GetDogById(id);
+                DogViewModel vm = new DogViewModel()
+                {
+                    Walks = walks,
+                    Dog = dog
+                };
+
                 if(dog.OwnerId == GetCurrentUserId())
                 {
-                    return View(dog);
+                    return View(vm);
                 }
                 else
                 {
@@ -137,11 +145,13 @@ namespace DogGo.Controllers
         }
 
         private readonly IDogRepository _dogRepo;
+        private readonly IWalkRepository _walkRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public DogsController(IDogRepository dogRepository)
+        public DogsController(IDogRepository dogRepository, IWalkRepository walkRepo)
         {
             _dogRepo = dogRepository;
+            _walkRepo = walkRepo;
         }
     }
 }

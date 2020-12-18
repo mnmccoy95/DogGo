@@ -150,5 +150,87 @@ namespace DogGo.Repositories
                 }
             }
         }
+        public void ConfirmWalk(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                            UPDATE Walks
+                            SET 
+                                Accepted = 1
+                            WHERE Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        public Walk GetWalkById(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT Id, Date, Duration, Complete, WalkerId
+                        FROM Walks
+                        WHERE Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        Walk walk = new Walk()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Date = reader.GetDateTime(reader.GetOrdinal("Date")),
+                            Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                            Completed = reader.GetBoolean(reader.GetOrdinal("Complete")),
+                            walker = new Walker()
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("WalkerId"))
+                            }
+                        };
+
+                        reader.Close();
+                        return walk;
+                    }
+
+                    reader.Close();
+                    return null;
+                }
+            }
+        }
+        public void CompleteWalk(Walk walk)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                            UPDATE Walks
+                            SET 
+                                Complete = 1,
+                                Duration = @duration
+                            WHERE Id = @id";
+
+                    cmd.Parameters.AddWithValue("@id", walk.Id);
+                    cmd.Parameters.AddWithValue("@duration", walk.Duration);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

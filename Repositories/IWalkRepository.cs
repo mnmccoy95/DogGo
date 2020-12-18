@@ -9,5 +9,8 @@ namespace DogGo.Repositories
         void AddWalk(Walk walk);
         List<Walk> GetWalksByOwner(int id);
         List<Walk> GetWalksByDog(int id);
+        void ConfirmWalk(int id);
+        Walk GetWalkById(int id);
+        void CompleteWalk(Walk walk);
     }
 }

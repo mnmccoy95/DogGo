@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace DogGo.Controllers
 {
+    [Authorize]
     public class WalkController : Controller
     {
         // GET: WalkController
@@ -57,31 +58,65 @@ namespace DogGo.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(WalkFormViewModel walkForm)
         {
-           
-                _walkRepository.AddWalk(walkForm.walk);
-                return RedirectToAction("Index", "Owners");
-            
-            
+            _walkRepository.AddWalk(walkForm.walk);
+            return RedirectToAction("Index", "Owners"); 
         }
-
-        // GET: WalkController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Confirm(int id)
         {
-            return View();
+            _walkRepository.ConfirmWalk(id);
+            return RedirectToAction("Index", "Walkers");
+        }
+        // GET: DogsController/Edit/5
+        public ActionResult Edit(int id)
+        {
+            if (User.IsInRole("DogOwner"))
+            {
+                return NotFound();
+            }
+            else
+            {
+                Walk walk = _walkRepository.GetWalkById(id);
+                if (walk.walker.Id == GetCurrentUserId())
+                {
+                    walk.Duration = walk.Duration / 60;
+                    return View(walk);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
         }
 
-        // POST: WalkController/Delete/5
+        // POST: DogsController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Edit(Walk walk)
         {
-            try
+            if (User.IsInRole("DogOwner"))
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
-            catch
+            else
             {
-                return View();
+                if (walk.walker.Id == GetCurrentUserId())
+                {
+                    try
+                    {
+                        walk.Duration = walk.Duration * 60;
+                        _walkRepository.CompleteWalk(walk);
+
+                        return RedirectToAction("Index", "Walkers");
+                    }
+                    catch (Exception ex)
+                    {
+                        return View(walk);
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
         private int GetCurrentUserId()
